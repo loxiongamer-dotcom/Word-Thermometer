@@ -1,0 +1,42 @@
+{
+    "name": "Word Thermometer",
+    "short_name": "WordTherm",
+    "description": "Guess words to heat up the thermometer in this fun word game!",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0c29",
+    "theme_color": "#302b63",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["games", "puzzle", "education"],
+    "lang": "en-US",
+    "dir": "ltr",
+    "prefer_related_applications": false,
+    "shortcuts": [
+        {
+            "name": "Play Now",
+            "short_name": "Play",
+            "description": "Start a new game",
+            "url": "/?play"
+        },
+        {
+            "name": "Store",
+            "short_name": "Shop",
+            "description": "Visit the store",
+            "url": "/?store"
+        }
+    ]
+}
