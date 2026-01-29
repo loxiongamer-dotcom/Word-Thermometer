@@ -1,5 +1,9 @@
+[file name]: ads.js
+[file content begin]
 // Ad Management System
 let adsLoaded = false;
+let adReady = false;
+let adWatched = false;
 
 function loadAds() {
     if (gameState.purchased.adfree) {
@@ -24,7 +28,7 @@ function loadAds() {
                         Support the game by watching ads
                     </small>
                 </div>
-                <button onclick="watchAdForCoins()" style="
+                <button onclick="watchAdForCoins()" id="watch-ad-btn" style="
                     padding: 12px 24px;
                     background: linear-gradient(135deg, #4fc3f7, #2196f3);
                     border: none;
@@ -37,11 +41,20 @@ function loadAds() {
                 ">
                     <i class="fas fa-coins"></i> Watch Ad for 10 Coins
                 </button>
+                <p id="ad-status" style="font-size:12px; color:rgba(255,255,255,0.6); margin-top:8px;">
+                    Ad will play before you get coins
+                </p>
             </div>
         `;
     });
     
     adsLoaded = true;
+    
+    // Simulate ad loading delay
+    setTimeout(() => {
+        adReady = true;
+        console.log("Ad ready to play");
+    }, 2000);
 }
 
 function hideAds() {
@@ -69,24 +82,66 @@ function watchAdForCoins() {
         return;
     }
     
-    showFeedback('Playing ad...');
+    if (!adReady) {
+        showFeedback('Ad is still loading...', true);
+        return;
+    }
     
-    // Simulate ad delay
+    if (adWatched) {
+        showFeedback('You already watched an ad recently. Try again later.', true);
+        return;
+    }
+    
+    const adBtn = document.getElementById('watch-ad-btn');
+    const adStatus = document.getElementById('ad-status');
+    
+    // Disable button while ad plays
+    adBtn.disabled = true;
+    adBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ad Playing...';
+    adStatus.textContent = 'Ad is playing...';
+    adStatus.style.color = '#ffd166';
+    
+    showFeedback('Ad playing now...');
+    
+    // Simulate ad playing for 3 seconds
     setTimeout(() => {
-        // Award coins
+        // Simulate ad completion
+        adWatched = true;
+        
+        // Award coins only AFTER ad completes
         gameState.coins += 10;
         updateDisplay();
         saveGameData();
+        
+        // Update button and status
+        adBtn.innerHTML = '<i class="fas fa-check"></i> +10 Coins Awarded!';
+        adBtn.style.background = 'linear-gradient(135deg, #81c784, #4caf50)';
+        adStatus.textContent = 'Coins added to your account!';
+        adStatus.style.color = '#81c784';
         
         showFeedback('+10 coins! Thank you for watching!');
         
         // Small chance for bonus
         if (Math.random() < 0.2) { // 20% chance
-            gameState.coins += 5;
-            updateDisplay();
-            showFeedback('Bonus! +5 extra coins!');
+            setTimeout(() => {
+                gameState.coins += 5;
+                updateDisplay();
+                showFeedback('Bonus! +5 extra coins!');
+                adStatus.textContent = 'Bonus! Total +15 coins!';
+            }, 500);
         }
-    }, 2000);
+        
+        // Reset after 30 seconds
+        setTimeout(() => {
+            adWatched = false;
+            adBtn.disabled = false;
+            adBtn.innerHTML = '<i class="fas fa-coins"></i> Watch Ad for 10 Coins';
+            adBtn.style.background = 'linear-gradient(135deg, #4fc3f7, #2196f3)';
+            adStatus.textContent = 'Ad ready to watch again';
+            adStatus.style.color = 'rgba(255,255,255,0.6)';
+        }, 30000);
+        
+    }, 3000); // 3 second ad simulation
 }
 
 // Initialize ad system when DOM is ready
@@ -98,3 +153,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
+[file content end]
