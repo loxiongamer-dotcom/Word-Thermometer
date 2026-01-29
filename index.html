@@ -559,4 +559,52 @@
         });
     </script>
 </body>
+    <script>
+// VISUAL DEBUG PANEL - Shows what's running
+console.log = function(message) {
+    // Also show logs on screen
+    const debugDiv = document.getElementById('debugLog') || (function() {
+        const div = document.createElement('div');
+        div.id = 'debugLog';
+        div.style.cssText = 'position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.8); color:#00ff00; padding:10px; z-index:9999; font-size:12px; max-width:300px; max-height:200px; overflow:auto; border:1px solid #00ff00;';
+        document.body.appendChild(div);
+        return div;
+    })();
+    
+    debugDiv.innerHTML += message + '<br>';
+    
+    // Also log to real console if it exists
+    if (window.console && console.log) {
+        console.log.apply(console, arguments);
+    }
+};
+
+// Test if core functions exist
+function testGameFunctions() {
+    const tests = {
+        'gameState exists': typeof window.gameState !== 'undefined',
+        'updateDisplay function': typeof updateDisplay === 'function',
+        'startNewGame function': typeof startNewGame === 'function',
+        'submitGuess function': typeof submitGuess === 'function',
+        'useHint function': typeof useHint === 'function'
+    };
+    
+    console.log('=== GAME DIAGNOSTICS ===');
+    for (const [testName, result] of Object.entries(tests)) {
+        console.log(`${testName}: ${result ? '✅ OK' : '❌ MISSING'}`);
+    }
+    console.log('Game heat: ' + (window.gameState ? window.gameState.heat : 'NO STATE'));
+    console.log('Selected category: ' + (window.gameState ? window.gameState.selectedCategory : 'NONE'));
+}
+
+// Run tests when page loads
+setTimeout(testGameFunctions, 1000);
+
+// Also test button clicks
+document.addEventListener('click', function(e) {
+    if (e.target.id) {
+        console.log('Clicked: ' + e.target.id);
+    }
+}, true);
+</script>
 </html>
