@@ -1,3 +1,5 @@
+[file name]: game.js
+[file content begin]
 // Word Thermometer Game Logic
 console.log("Game logic loaded");
 
@@ -133,6 +135,33 @@ function updateHintButton() {
     }
 }
 
+// Update thermometer color based on heat
+function updateThermometerColor() {
+    const mercury = document.getElementById('mercury');
+    const heat = gameState.heat;
+    
+    // Create gradient from blue (cold) to red (hot)
+    let color;
+    if (heat < 25) {
+        color = `linear-gradient(to right, #0000ff, #00aaff, #4fc3f7)`;
+    } else if (heat < 50) {
+        color = `linear-gradient(to right, #00aaff, #4fc3f7, #00ffaa)`;
+    } else if (heat < 75) {
+        color = `linear-gradient(to right, #ffff00, #ffaa00, #ff8800)`;
+    } else {
+        color = `linear-gradient(to right, #ff5500, #ff0000, #ff0000)`;
+    }
+    
+    mercury.style.background = color;
+    
+    // Gold theme if purchased
+    if (gameState.purchased.gold) {
+        mercury.classList.add('gold-mercury');
+    } else {
+        mercury.classList.remove('gold-mercury');
+    }
+}
+
 // Start new game
 function startNewGame() {
     if (!gameState.selectedCategory || !gameState.selectedDifficulty) {
@@ -201,9 +230,10 @@ function submitGuess() {
     // Calculate similarity
     const similarity = calculateWordSimilarity(guess, currentGame.targetWord);
     
-    // Calculate heat change
+    // Calculate heat change - FIXED: Heat goes down for cold guesses
     let heatChange = 0;
     let tempEmoji = '🧊';
+    let isHot = true;
     
     if (similarity === 1) {
         tempEmoji = '🔥';
@@ -219,13 +249,12 @@ function submitGuess() {
         heatChange = 15;
     } else if (similarity > 0.2) {
         tempEmoji = '❄️';
-        heatChange = 10;
-    } else if (similarity > 0) {
-        tempEmoji = '🧊';
-        heatChange = 5;
+        heatChange = -10; // COLD - heat goes DOWN
+        isHot = false;
     } else {
         tempEmoji = '🧊';
-        heatChange = 2;
+        heatChange = -15; // VERY COLD - heat goes DOWN more
+        isHot = false;
     }
     
     // Check if guess is correct
@@ -240,22 +269,31 @@ function submitGuess() {
         
         currentGame.correct = true;
         
+        // Update thermometer color
+        updateThermometerColor();
+        
         // Start new game after 2 seconds
         setTimeout(() => {
             showFeedback('Starting new word...');
             setTimeout(startNewGame, 1000);
         }, 2000);
     } else {
-        // Wrong guess
-        gameState.heat = Math.min(gameState.heat + heatChange, 100);
+        // Wrong guess - heat can go up OR down based on temperature
+        const newHeat = gameState.heat + heatChange;
+        gameState.heat = Math.max(0, Math.min(newHeat, 100)); // Keep between 0-100
         
-        showTemperatureAnimation(tempEmoji, '#ff5500');
-        showFeedback(`"${guess}" - ${Math.round(similarity * 100)}% similar. ${tempEmoji} +${heatChange}° Heat`);
+        const color = isHot ? '#ff5500' : '#00aaff';
+        showTemperatureAnimation(tempEmoji, color);
+        showFeedback(`"${guess}" - ${Math.round(similarity * 100)}% similar. ${tempEmoji} ${heatChange > 0 ? '+' : ''}${heatChange}° Heat`);
+        
+        // Update thermometer color
+        updateThermometerColor();
         
         // Check game over
         if (currentGame.triesLeft <= 0) {
             showFeedback(`Ran out of tries! The word remains a mystery...`, true);
             gameState.heat = Math.max(gameState.heat - 10, 0);
+            updateThermometerColor();
             setTimeout(() => startNewGame(), 3000);
         }
     }
@@ -342,6 +380,7 @@ window.updateRecentGuesses = updateRecentGuesses;
 window.updateDisplay = updateDisplay;
 window.showFeedback = showFeedback;
 window.saveGameData = saveGameData;
+window.updateThermometerColor = updateThermometerColor;
 
 // Start first game automatically
 setTimeout(() => {
@@ -349,3 +388,4 @@ setTimeout(() => {
         startNewGame();
     }
 }, 500);
+[file content end]
