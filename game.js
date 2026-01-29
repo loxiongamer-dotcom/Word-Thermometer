@@ -1,5 +1,3 @@
-[file name]: game.js
-[file content begin]
 // Word Thermometer Game Logic
 console.log("Game logic loaded");
 
@@ -388,4 +386,5 @@ setTimeout(() => {
         startNewGame();
     }
 }, 500);
-[file content end]
+
+console.log("Game logic fully loaded and ready");
