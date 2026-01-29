@@ -1,3 +1,5 @@
+[file name]: index.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,7 +104,7 @@
         background: linear-gradient(135deg, #ff6b6b, #ff8e53);
     }
     
-    /* HORIZONTAL THERMOMETER */
+    /* HORIZONTAL THERMOMETER - UPDATED FOR COLOR CHANGES */
     .thermometer-container {
         margin: 20px 0;
         padding: 16px;
@@ -133,8 +135,8 @@
         top: 0;
         height: 100%;
         width: 0%;
-        background: linear-gradient(to right, #ff0000, #ff8800, #ffff00);
-        transition: width 0.5s;
+        background: linear-gradient(to right, #0000ff, #00aaff, #4fc3f7); /* Start with blue (cold) */
+        transition: width 0.5s, background 0.5s; /* Added background transition */
         border-radius: 20px;
     }
     
@@ -480,11 +482,33 @@
         mercury.style.width = width + '%';
         temperature.textContent = gameState.heat + '°';
         
+        // Update thermometer color based on heat
+        updateThermometerColor();
+        
         // Gold theme if purchased
         if (gameState.purchased.gold) {
             document.getElementById('thermometer').classList.add('gold-thermometer');
             document.getElementById('mercury').classList.add('gold-mercury');
         }
+    }
+    
+    function updateThermometerColor() {
+        const mercury = document.getElementById('mercury');
+        const heat = gameState.heat;
+        
+        // Create gradient from blue (cold) to red (hot)
+        let color;
+        if (heat < 25) {
+            color = `linear-gradient(to right, #0000ff, #00aaff, #4fc3f7)`;
+        } else if (heat < 50) {
+            color = `linear-gradient(to right, #00aaff, #4fc3f7, #00ffaa)`;
+        } else if (heat < 75) {
+            color = `linear-gradient(to right, #ffff00, #ffaa00, #ff8800)`;
+        } else {
+            color = `linear-gradient(to right, #ff5500, #ff0000, #ff0000)`;
+        }
+        
+        mercury.style.background = color;
     }
     
     function showFeedback(msg, isError = false) {
@@ -529,3 +553,4 @@
     </script>
 </body>
 </html>
+[file content end]
