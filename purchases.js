@@ -1,3 +1,5 @@
+[file name]: purchases.js
+[file content begin]
 // Purchase Management with Firebase Tracking
 function initializeStore() {
     updateStoreBadges();
@@ -76,6 +78,7 @@ function initPayPalButtons() {
                     // Update UI
                     updateStoreBadges();
                     updateDisplay();
+                    updateThermometerColor();
                     
                     // Track in Firebase
                     if (window.trackPurchase) {
@@ -235,7 +238,64 @@ function initPayPalButtons() {
             }
         }).render("#adfree-paypal");
         
-        console.log("PayPal buttons initialized successfully");
+        // Buy Developer Coffee - Any amount (USING YOUR PROVIDED BUTTON ID)
+        paypal.HostedButtons({
+            hostedButtonId: "3VKBM98YVCLFG",
+            onInit: function(data, actions) {
+                console.log("Developer Coffee button ready");
+            },
+            onClick: function() {
+                console.log("Developer Coffee donation started");
+                if (window.trackGameEvent) {
+                    window.trackGameEvent('donation_started', { type: 'coffee' });
+                }
+            },
+            onApprove: function(data, actions) {
+                console.log("Developer Coffee donation approved");
+                return actions.order.capture().then(function(details) {
+                    console.log("Donation completed:", details);
+                    
+                    // Track in Firebase
+                    if (window.trackPurchase) {
+                        window.trackPurchase('coffee', 0, details.id || '');
+                    }
+                    
+                    // Track game event
+                    if (window.trackGameEvent) {
+                        window.trackGameEvent('donation_completed', { 
+                            type: 'coffee',
+                            transactionId: details.id || ''
+                        });
+                    }
+                    
+                    // Show success
+                    showPurchaseSuccess('Thank you for buying me a coffee! Your support means a lot!');
+                    
+                    // Give a small thank you bonus (optional)
+                    gameState.coins += 10;
+                    updateDisplay();
+                    showFeedback('+10 coins as a thank you!');
+                    
+                    // Save game
+                    saveGameData();
+                });
+            },
+            onCancel: function(data) {
+                console.log("Donation cancelled");
+                if (window.trackGameEvent) {
+                    window.trackGameEvent('donation_cancelled', { type: 'coffee' });
+                }
+            },
+            onError: function(err) {
+                console.error("PayPal error:", err);
+                showFeedback('Payment failed. Please try again.', true);
+                if (window.trackGameEvent) {
+                    window.trackGameEvent('donation_error', { type: 'coffee', error: err.message });
+                }
+            }
+        }).render("#coffee-paypal");
+        
+        console.log("All PayPal buttons initialized successfully");
         
     } catch (error) {
         console.error("Error initializing PayPal:", error);
@@ -247,7 +307,8 @@ function showPayPalFallback() {
     const containers = [
         { id: 'gold-paypal', url: 'https://paypal.me/loxiongamer?item_name=Gold+Thermometer&amount=1.99' },
         { id: 'hints-paypal', url: 'https://paypal.me/loxiongamer?item_name=Hint+Pack&amount=0.99' },
-        { id: 'adfree-paypal', url: 'https://paypal.me/loxiongamer?item_name=Remove+Ads&amount=4.99' }
+        { id: 'adfree-paypal', url: 'https://paypal.me/loxiongamer?item_name=Remove+Ads&amount=4.99' },
+        { id: 'coffee-paypal', url: 'https://paypal.me/loxiongamer' }
     ];
     
     containers.forEach(item => {
@@ -280,3 +341,4 @@ function showPurchaseSuccess(message) {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initializeStore, 2000);
 });
+[file content end]
