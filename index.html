@@ -1,5 +1,3 @@
-[file name]: index.html
-[file content begin]
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,8 +133,8 @@
         top: 0;
         height: 100%;
         width: 0%;
-        background: linear-gradient(to right, #0000ff, #00aaff, #4fc3f7); /* Start with blue (cold) */
-        transition: width 0.5s, background 0.5s; /* Added background transition */
+        background: linear-gradient(to right, #0000ff, #00aaff, #4fc3f7);
+        transition: width 0.5s, background 0.5s;
         border-radius: 20px;
     }
     
@@ -451,7 +449,7 @@
         </footer>
     </div>
 
-    <!-- JavaScript Files - IMPORTANT: Load in correct order -->
+    <!-- JavaScript Files - LOAD IN CORRECT ORDER -->
     <script>
     // ============= GAME STATE =============
     window.gameState = {
@@ -462,7 +460,8 @@
         purchased: {
             gold: false,
             adfree: false,
-            hintPackHints: 0
+            hintPackHints: 0,
+            extraHints: 0
         },
         selectedDifficulty: 'easy',
         selectedCategory: 'food'
@@ -474,7 +473,6 @@
         document.getElementById('wins').textContent = gameState.wins;
         document.getElementById('streak').textContent = gameState.heat + '°';
         
-        // Update thermometer
         const mercury = document.getElementById('mercury');
         const temperature = document.getElementById('temperature');
         const width = Math.min((gameState.heat / 100) * 100, 100);
@@ -482,10 +480,8 @@
         mercury.style.width = width + '%';
         temperature.textContent = gameState.heat + '°';
         
-        // Update thermometer color based on heat
         updateThermometerColor();
         
-        // Gold theme if purchased
         if (gameState.purchased.gold) {
             document.getElementById('thermometer').classList.add('gold-thermometer');
             document.getElementById('mercury').classList.add('gold-mercury');
@@ -496,7 +492,6 @@
         const mercury = document.getElementById('mercury');
         const heat = gameState.heat;
         
-        // Create gradient from blue (cold) to red (hot)
         let color;
         if (heat < 25) {
             color = `linear-gradient(to right, #0000ff, #00aaff, #4fc3f7)`;
@@ -532,25 +527,36 @@
     }
     </script>
     
-    <!-- Load other JS files -->
+    <!-- Load game logic files -->
     <script src="game.js"></script>
     <script src="main.js"></script>
     <script src="purchases.js"></script>
     <script src="firebase.js"></script>
     <script src="ads.js"></script>
     
-    <!-- Service Worker -->
+    <!-- Service Worker & Initialization -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js');
         }
         
-        // Initialize after page loads
+        // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM loaded, initializing game...");
             loadGameData();
             updateDisplay();
+            
+            // Start game after all scripts are loaded
+            setTimeout(function() {
+                if (typeof startNewGame === 'function') {
+                    console.log("Calling startNewGame...");
+                    startNewGame();
+                    document.getElementById('guess-input').focus();
+                } else {
+                    console.error("startNewGame function not found!");
+                }
+            }, 500);
         });
     </script>
 </body>
 </html>
-[file content end]
